@@ -3,6 +3,7 @@ import math
 import csfml
 
 import vector
+import light
 
 
 type
@@ -34,22 +35,36 @@ proc rayIntersect* (sphere: Sphere, orig, dir: Vector, t0: var float): bool =
   return true
 
 
-proc sceneIntersect* (spheres: var seq[Sphere], orig, dir: var Vector, mat: var Color): bool =
-  var dist: float = high(int).float
+proc sceneIntersect* (spheres: var seq[Sphere], orig, dir, p, n: var Vector, mat: var Color): bool =
+  var distSpheres: float = high(int).float
 
   for sphere in spheres:
 
-    if rayIntersect(sphere, orig, dir, dist) == true:
+    var dist: float
+
+    if rayIntersect(sphere, orig, dir, dist) == true and dist < distSpheres:
+      distSpheres = dist
+      p = add(orig, mul(dir, dist))
+      n = sub(p, sphere.center).normalize()
       mat = sphere.material
-      return true
 
-  return false
+  return distSpheres < 1000
 
 
-proc rayCast* (spheres: var seq[Sphere], orig, dir: var Vector): Color =
+proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var Vector): Color =
+  var p, n: Vector
   var mat: Color
 
-  if sceneIntersect(spheres, orig, dir, mat) == false:
+  if sceneIntersect(spheres, orig, dir, p, n, mat) == false:
     return Black
 
-  return mat
+  var intensity: float
+
+  for light in lights:
+    var dirLight: Vector = sub(light.position, p).normalize()
+    intensity = intensity + light.intensity * max(0.1, mulScalar(dirLight, n))
+
+  var tmp: Vector = mul(newVector(mat.r.float, mat.g.float, mat.b.float), intensity)
+  var final: Color = color(tmp.x.int, tmp.y.int, tmp.z.int, 255)
+
+  return final

@@ -5,6 +5,7 @@ import csfml
 
 import vector
 import sphere
+import light
 
 
 const width: int = 1024
@@ -31,7 +32,7 @@ proc writeImage(buf: Buffer, filename: string) =
       echo "Image successfully saved"
 
 
-proc renderer* (w, h: int, spheres: var seq[Sphere]): Buffer =
+proc renderer* (w, h: int, spheres: var seq[Sphere], lights: var seq[Light]): Buffer =
   var buf: Buffer = Buffer(width: w, height: h, pixels: newSeq[Color](width * height))
 
   for j in 0..<height:
@@ -42,7 +43,7 @@ proc renderer* (w, h: int, spheres: var seq[Sphere]): Buffer =
       var orig: Vector = newVector(0, 0, 0)
       var dir: Vector = newVector(x, y, -1).normalize()
 
-      buf.pixels[i + j * width] = rayCast(spheres, orig, dir)
+      buf.pixels[i + j * width] = rayCast(spheres, lights, orig, dir)
 
   return buf
 
@@ -62,6 +63,10 @@ spheres.add(s2)
 var s3: Sphere = newSphere(newVector(1, 2, -30), 6, green)
 spheres.add(s3)
 
-# Render image
-var buf: Buffer = renderer(width, height, spheres)
-writeImage(buf, "images/step2-add-spheres.png")
+var lights: seq[Light] = @[]
+
+var l1: Light = newLight(newVector(-20, 20, 20), 2)
+lights.add(l1)
+
+var buf: Buffer = renderer(width, height, spheres, lights)
+writeImage(buf, "images/step3-add-lighting.png")

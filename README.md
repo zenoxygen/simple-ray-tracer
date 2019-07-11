@@ -9,3 +9,7 @@ A simple ray tracer written in Nim.
 ## Step 2: Add spheres
 
 <p align="center"><img width=70% src="images/step2-add-spheres.png"></p>
+
+## Step 3: Add lighting
+
+<p align="center"><img width=70% src="images/step3-add-lighting.png"></p>
