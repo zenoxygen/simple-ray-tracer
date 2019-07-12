@@ -17,3 +17,7 @@ A simple ray tracer written in Nim.
 ## Step 4: Add specular lighting
 
 <p align="center"><img width=70% src="images/step4-add-specular-lighting.png"></p>
+
+## Step 5: Add shadows
+
+<p align="center"><img width=70% src="images/step5-add-shadows.png"></p>

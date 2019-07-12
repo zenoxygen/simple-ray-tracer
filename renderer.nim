@@ -61,10 +61,11 @@ var spheres: seq[Sphere] = @[]
 spheres.add(newSphere(newVector(-1, -2, -15), 2, m1))
 spheres.add(newSphere(newVector(2, -1, -20), 3, m2))
 spheres.add(newSphere(newVector(1, 2, -30), 6, m3))
+spheres.add(newSphere(newVector(-5, 4, -20), 1, m3))
 
 var lights: seq[Light] = @[]
 lights.add(newLight(newVector(-20, 20, 20), 3))
 lights.add(newLight(newVector(30, 50, -20), 3))
 
 var buf: Buffer = renderer(width, height, spheres, lights)
-writeImage(buf, "images/step4-add-specular-lighting.png")
+writeImage(buf, "images/step5-add-shadows.png")

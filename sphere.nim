@@ -71,6 +71,18 @@ proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var 
     var dirLight: Vector = sub(light.position, point).normalize()
     var distLight: float = sub(light.position, point).length()
 
+    var origShadow, pointShadow, normalShadow: Vector
+    var tmpMat: Material
+
+    if mulScalar(dirLight, normal) < 0:
+      origShadow = sub(point, normal)
+    else:
+      origShadow = add(point, normal)
+
+    if sceneIntersect(spheres, origShadow, dirLight, pointShadow, normalShadow, tmpMat) and
+      sub(pointShadow, origShadow).length() < distLight:
+      continue
+
     diffuseIntensity += light.intensity * max(0.1, mulScalar(dirLight, normal))
     specularIntensity += pow(max(0.1, mulScalar(inv(reflect(inv(dirLight), normal)), dir)),
                               mat.specularExponent) * light.intensity
