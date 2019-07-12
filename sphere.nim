@@ -56,15 +56,27 @@ proc sceneIntersect* (spheres: var seq[Sphere], orig, dir, p, n: var Vector, mat
   return distSpheres < 1000
 
 
-proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var Vector): Color =
+proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var Vector, depth = 0): Color =
   var point, normal: Vector
   var mat: Material
 
-  if sceneIntersect(spheres, orig, dir, point, normal, mat) == false:
-    return Black
+  if depth > 10 or sceneIntersect(spheres, orig, dir, point, normal, mat) == false:
+    return color(50, 175, 200, 255)
 
   var diffuseIntensity: float
   var specularIntensity: float
+
+  var origReflect, dirReflect: Vector
+  var colorReflect: Color
+
+  dirReflect = reflect(dir, normal)
+
+  if mulScalar(dirReflect, normal) < 0:
+    origReflect = sub(point, normal)
+  else:
+    origReflect = add(point, normal)
+
+  colorReflect = rayCast(spheres, lights, origReflect, dirReflect, depth + 1)
 
   for light in lights:
 
@@ -97,7 +109,12 @@ proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var 
                                            specularIntensity),
                                            mat.albedo[1])
 
-  var phongReflection: Vector = add(diffuseReflection, specularReflection)
+  var colorReflection: Vector = mul(newVector(colorReflect.r.float,
+                                              colorReflect.g.float,
+                                              colorReflect.b.float),
+                                              mat.albedo[2])
+
+  var phongReflection: Vector = add(add(diffuseReflection, specularReflection), colorReflection)
 
   var final: Color = color(phongReflection[0].int,
                            phongReflection[1].int,

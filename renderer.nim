@@ -49,23 +49,29 @@ proc renderer* (w, h: int, spheres: var seq[Sphere], lights: var seq[Light]): Bu
   return buf
 
 
-var red: Color = color(75, 25, 25, 255)
-var green: Color = color(25, 75, 25, 255)
-var blue: Color = color(25, 25, 75, 255)
-
-var m1: Material = newMaterial(newVector(0.6, 0.4, 0.0), red, 50.0)
-var m2: Material = newMaterial(newVector(0.6, 0.4, 0.0), blue, 50.0)
-var m3: Material = newMaterial(newVector(0.6, 0.4, 0.0), green, 50.0)
+var red: Material = newMaterial(newVector(0.6, 0.4, 0.1),
+                                color(75, 25, 25, 255),
+                                50.0)
+var green: Material = newMaterial(newVector(0.6, 0.4, 0.1),
+                                  color(25, 75, 25, 255),
+                                  50.0)
+var blue: Material = newMaterial(newVector(0.6, 0.4, 0.0),
+                                 color(25, 25, 75, 255),
+                                 50.0)
+var mirror: Material = newMaterial(newVector(0.0, 10, 0.8),
+                                   color(255, 255, 255, 255),
+                                   1425.0)
 
 var spheres: seq[Sphere] = @[]
-spheres.add(newSphere(newVector(-1, -2, -15), 2, m1))
-spheres.add(newSphere(newVector(2, -1, -20), 3, m2))
-spheres.add(newSphere(newVector(1, 2, -30), 6, m3))
-spheres.add(newSphere(newVector(-5, 4, -20), 1, m3))
+spheres.add(newSphere(newVector(-1, -2, -15), 2, red))
+spheres.add(newSphere(newVector(2, -1, -20), 3, blue))
+spheres.add(newSphere(newVector(1, 2, -30), 6, green))
+spheres.add(newSphere(newVector(-5, 4, -20), 1, mirror))
+spheres.add(newSphere(newVector(8, 5, -20), 3, mirror))
 
 var lights: seq[Light] = @[]
 lights.add(newLight(newVector(-20, 20, 20), 3))
 lights.add(newLight(newVector(30, 50, -20), 3))
 
 var buf: Buffer = renderer(width, height, spheres, lights)
-writeImage(buf, "images/step5-add-shadows.png")
+writeImage(buf, "images/step6-add-reflections.png")

@@ -21,3 +21,7 @@ A simple ray tracer written in Nim.
 ## Step 5: Add shadows
 
 <p align="center"><img width=70% src="images/step5-add-shadows.png"></p>
+
+## Step 6: Add reflections
+
+<p align="center"><img width=70% src="images/step6-add-reflections.png"></p>
