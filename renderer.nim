@@ -6,6 +6,7 @@ import csfml
 import vector
 import sphere
 import light
+import material
 
 
 const width: int = 1024
@@ -48,25 +49,22 @@ proc renderer* (w, h: int, spheres: var seq[Sphere], lights: var seq[Light]): Bu
   return buf
 
 
-var spheres: seq[Sphere] = @[]
-
 var red: Color = color(75, 25, 25, 255)
 var green: Color = color(25, 75, 25, 255)
 var blue: Color = color(25, 25, 75, 255)
 
-var s1: Sphere = newSphere(newVector(-1, -2, -15), 2, red)
-spheres.add(s1)
+var m1: Material = newMaterial(newVector(0.6, 0.4, 0.0), red, 50.0)
+var m2: Material = newMaterial(newVector(0.6, 0.4, 0.0), blue, 50.0)
+var m3: Material = newMaterial(newVector(0.6, 0.4, 0.0), green, 50.0)
 
-var s2: Sphere = newSphere(newVector(2, -1, -20), 3, blue)
-spheres.add(s2)
-
-var s3: Sphere = newSphere(newVector(1, 2, -30), 6, green)
-spheres.add(s3)
+var spheres: seq[Sphere] = @[]
+spheres.add(newSphere(newVector(-1, -2, -15), 2, m1))
+spheres.add(newSphere(newVector(2, -1, -20), 3, m2))
+spheres.add(newSphere(newVector(1, 2, -30), 6, m3))
 
 var lights: seq[Light] = @[]
-
-var l1: Light = newLight(newVector(-20, 20, 20), 2)
-lights.add(l1)
+lights.add(newLight(newVector(-20, 20, 20), 3))
+lights.add(newLight(newVector(30, 50, -20), 3))
 
 var buf: Buffer = renderer(width, height, spheres, lights)
-writeImage(buf, "images/step3-add-lighting.png")
+writeImage(buf, "images/step4-add-specular-lighting.png")

@@ -4,17 +4,22 @@ import csfml
 
 import vector
 import light
+import material
 
 
 type
   Sphere* = object
     center: Vector
     radius: float
-    material: Color
+    material: Material
 
 
-proc newSphere* (c: Vector, r: float, mat: Color): Sphere =
+proc newSphere* (c: Vector, r: float, mat: Material): Sphere =
   return Sphere(center: c, radius: r, material: mat)
+
+
+proc reflect* (incident: Vector, normal: Vector): Vector =
+  return sub(mul(mul(normal, mulScalar(incident, normal)), 2.0), incident)
 
 
 proc rayIntersect* (sphere: Sphere, orig, dir: Vector, t0: var float): bool =
@@ -35,7 +40,7 @@ proc rayIntersect* (sphere: Sphere, orig, dir: Vector, t0: var float): bool =
   return true
 
 
-proc sceneIntersect* (spheres: var seq[Sphere], orig, dir, p, n: var Vector, mat: var Color): bool =
+proc sceneIntersect* (spheres: var seq[Sphere], orig, dir, p, n: var Vector, mat: var Material): bool =
   var distSpheres: float = high(int).float
 
   for sphere in spheres:
@@ -52,19 +57,38 @@ proc sceneIntersect* (spheres: var seq[Sphere], orig, dir, p, n: var Vector, mat
 
 
 proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var Vector): Color =
-  var p, n: Vector
-  var mat: Color
+  var point, normal: Vector
+  var mat: Material
 
-  if sceneIntersect(spheres, orig, dir, p, n, mat) == false:
+  if sceneIntersect(spheres, orig, dir, point, normal, mat) == false:
     return Black
 
-  var intensity: float
+  var diffuseIntensity: float
+  var specularIntensity: float
 
   for light in lights:
-    var dirLight: Vector = sub(light.position, p).normalize()
-    intensity = intensity + light.intensity * max(0.1, mulScalar(dirLight, n))
 
-  var tmp: Vector = mul(newVector(mat.r.float, mat.g.float, mat.b.float), intensity)
-  var final: Color = color(tmp.x.int, tmp.y.int, tmp.z.int, 255)
+    var dirLight: Vector = sub(light.position, point).normalize()
+    var distLight: float = sub(light.position, point).length()
+
+    diffuseIntensity += light.intensity * max(0.1, mulScalar(dirLight, normal))
+    specularIntensity += pow(max(0.1, mulScalar(inv(reflect(inv(dirLight), normal)), dir)),
+                              mat.specularExponent) * light.intensity
+
+  var diffuseReflection: Vector = mul(mul(newVector(mat.diffuseColor.r.float,
+                                                    mat.diffuseColor.g.float,
+                                                    mat.diffuseColor.b.float),
+                                                    diffuseIntensity),
+                                                    mat.albedo[0])
+
+  var specularReflection: Vector = mul(mul(newVector(1.0, 1.0, 1.0),
+                                           specularIntensity),
+                                           mat.albedo[1])
+
+  var phongReflection: Vector = add(diffuseReflection, specularReflection)
+
+  var final: Color = color(phongReflection[0].int,
+                           phongReflection[1].int,
+                           phongReflection[2].int, 255)
 
   return final

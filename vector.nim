@@ -72,3 +72,7 @@ proc mulScalar* (a: Vector, b: Vector): float =
   for i in 0..<3:
     ret = ret + (a[i] * b[i])
   return ret
+
+
+proc inv* (v: Vector): Vector =
+  return mul(v, -1.0)
