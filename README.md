@@ -25,3 +25,7 @@ A simple ray tracer written in Nim.
 ## Step 6: Add reflections
 
 <p align="center"><img width=70% src="images/step6-add-reflections.png"></p>
+
+## Step 7: Add refractions
+
+<p align="center"><img width=70% src="images/step7-add-refractions.png"></p>

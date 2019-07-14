@@ -22,6 +22,18 @@ proc reflect* (incident: Vector, normal: Vector): Vector =
   return sub(mul(mul(normal, mulScalar(incident, normal)), 2.0), incident)
 
 
+proc refract* (incident: Vector, normal: Vector, refractiveIndex: float): Vector =
+  var n1: float = 1.0
+  var n2: float = refractiveIndex
+  var cos1: float = mulScalar(normal, inv(incident))
+  var cos2: float = sqrt(1.0 - pow(n1 / n2, 2.0) * (1.0 - pow(cos1, 2.0)))
+
+  if cos1 > 0:
+    return add(mul(incident, pow(n1 / n2, 2.0)), mul(normal, (n1 / n2) * cos1 - cos2))
+  else:
+    return add(mul(incident, pow(n1 / n2, 2.0)), mul(normal, (n1 / n2) * cos1 + cos2))
+
+
 proc rayIntersect* (sphere: Sphere, orig, dir: Vector, t0: var float): bool =
   var l: Vector = sub(sphere.center, orig)
   var tca: float = mulScalar(l, dir)
@@ -69,14 +81,24 @@ proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var 
   var origReflect, dirReflect: Vector
   var colorReflect: Color
 
+  var origRefract, dirRefract: Vector
+  var colorRefract: Color
+
   dirReflect = reflect(dir, normal)
+  dirRefract = refract(dir, normal, mat.refractiveIndex)
 
   if mulScalar(dirReflect, normal) < 0:
-    origReflect = sub(point, normal)
+    origReflect = sub(point, mul(normal, 1e-3))
   else:
-    origReflect = add(point, normal)
+    origReflect = add(point, mul(normal, 1e-3))
+
+  if mulScalar(dirRefract, normal) < 0:
+    origRefract = sub(point, normal)
+  else:
+    origRefract = add(point, normal)
 
   colorReflect = rayCast(spheres, lights, origReflect, dirReflect, depth + 1)
+  colorRefract = rayCast(spheres, lights, origRefract, dirRefract, depth + 1)
 
   for light in lights:
 
@@ -114,7 +136,15 @@ proc rayCast* (spheres: var seq[Sphere], lights: var seq[Light], orig, dir: var 
                                               colorReflect.b.float),
                                               mat.albedo[2])
 
-  var phongReflection: Vector = add(add(diffuseReflection, specularReflection), colorReflection)
+  var colorRefraction: Vector = mul(newVector(colorRefract.r.float,
+                                              colorRefract.g.float,
+                                              colorRefract.b.float),
+                                              mat.transparence)
+
+  var phongReflection: Vector = add(add(add(diffuseReflection,
+                                            specularReflection),
+                                            colorReflection),
+                                            colorRefraction)
 
   var final: Color = color(phongReflection[0].int,
                            phongReflection[1].int,

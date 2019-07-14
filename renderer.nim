@@ -51,16 +51,19 @@ proc renderer* (w, h: int, spheres: var seq[Sphere], lights: var seq[Light]): Bu
 
 var red: Material = newMaterial(newVector(0.6, 0.4, 0.1),
                                 color(75, 25, 25, 255),
-                                50.0)
+                                50.0, 1.0, 0.0)
 var green: Material = newMaterial(newVector(0.6, 0.4, 0.1),
                                   color(25, 75, 25, 255),
-                                  50.0)
+                                  50.0, 1.0, 0.0)
 var blue: Material = newMaterial(newVector(0.6, 0.4, 0.0),
                                  color(25, 25, 75, 255),
-                                 50.0)
+                                 50.0, 1.0, 0.0)
 var mirror: Material = newMaterial(newVector(0.0, 10, 0.8),
                                    color(255, 255, 255, 255),
-                                   1425.0)
+                                   1425.0, 1.0, 0.0)
+var glass: Material = newMaterial(newVector(0.0, 0.6, 0.1),
+                                color(0, 0, 0, 255),
+                                125.0, 1.2, 0.8)
 
 var spheres: seq[Sphere] = @[]
 spheres.add(newSphere(newVector(-1, -2, -15), 2, red))
@@ -68,10 +71,11 @@ spheres.add(newSphere(newVector(2, -1, -20), 3, blue))
 spheres.add(newSphere(newVector(1, 2, -30), 6, green))
 spheres.add(newSphere(newVector(-5, 4, -20), 1, mirror))
 spheres.add(newSphere(newVector(8, 5, -20), 3, mirror))
+spheres.add(newSphere(newVector(-1, -2, -10), 1, glass))
 
 var lights: seq[Light] = @[]
 lights.add(newLight(newVector(-20, 20, 20), 3))
 lights.add(newLight(newVector(30, 50, -20), 3))
 
 var buf: Buffer = renderer(width, height, spheres, lights)
-writeImage(buf, "images/step6-add-reflections.png")
+writeImage(buf, "images/step7-add-refractions.png")

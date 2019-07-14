@@ -8,10 +8,12 @@ type
     albedo: Vector
     diffuseColor: Color
     specularExponent: float
+    refractiveIndex: float
+    transparence: float
 
 
-proc newMaterial* (albedo: Vector, color: Color, exp: float): Material =
-  return Material(albedo: albedo, diffuseColor: color, specularExponent: exp)
+proc newMaterial* (albedo: Vector, color: Color, exp: float, r: float, t: float): Material =
+  return Material(albedo: albedo, diffuseColor: color, specularExponent: exp, refractiveIndex: r, transparence: t)
 
 
 proc albedo* (mat: Material): Vector =
@@ -24,3 +26,10 @@ proc diffuseColor* (mat: Material): Color =
 
 proc specularExponent* (mat: Material): float =
   return mat.specularExponent
+
+
+proc refractiveIndex* (mat: Material): float =
+  return mat.refractiveIndex
+
+proc transparence* (mat: Material): float =
+  return mat.transparence
